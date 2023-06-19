@@ -38,9 +38,10 @@ def create_app(test_config=None):
     # coverage_warnings = app.coverage_provicer.evaluate_coverage()
     # app.logger.info(f'{len(coverage_warnings)} coverage warnings.')
 
-    init_sequences(app.config['SEQUENCES_DIR'],
-                   app.config['REFERENCE_SEQUENCE'],
-                   app.config['SEQUENCES_CACHE_DIR'])
+    # HX: we don't have these data now
+    # init_sequences(app.config['SEQUENCES_DIR'],
+    #               app.config['REFERENCE_SEQUENCE'],
+    #               app.config['SEQUENCES_CACHE_DIR'])
 
     # Initialize CORS and Sessions
     CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)

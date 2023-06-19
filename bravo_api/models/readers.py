@@ -214,20 +214,30 @@ def get_pub_freqs(allele_effects):
                 af = effect.get(pop + '_AF', '')
                 if af != '':
                     db[pop] = float(af.split('&')[0])
-        af = effect.get('gnomAD_AF', '')
+        # HX: separate gnomADe and gnomADg
+        af = effect.get('gnomADe_AF', '')
         if af != '':
-            db = pub_freqs.setdefault('gnomAD', {'ALL': float(af.split('&')[0]) })
+            db = pub_freqs.setdefault('gnomADe', {'ALL': float(af.split('&')[0]) })
             for pop in ['AFR', 'AMR', 'ASJ', 'EAS', 'FIN', 'NFE', 'OTH', 'SAS']:
-                af = effect.get('gnomAD_' + pop + '_AF', '')
+                af = effect.get('gnomADe_' + pop + '_AF', '')
                 if af != '':
                     db[pop] = float(af.split('&')[0])
+        af = effect.get('gnomADg_AF', '')
+        if af != '':
+            db = pub_freqs.setdefault('gnomADg', {'ALL': float(af.split('&')[0]) })
+            for pop in ['AFR', 'AMI', 'AMR', 'ASJ', 'EAS', 'FIN', 'MID', 'NFE', 'OTH', 'SAS']:
+                af = effect.get('gnomADg_' + pop + '_AF', '')
+                if af != '':
+                    db[pop] = float(af.split('&')[0])
+        # HX: edit end
     return [{'ds': key, **value} for key, value in pub_freqs.items()]
 
 
 def read_snv(filename):
     with pysam.VariantFile(filename) as ifile:
-        #for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'AVGGQ', 'AVGGQ_R', 'DP_HIST', 'DP_HIST_R', 'GQ_HIST', 'GQ_HIST_R', 'CSQ']:
-        for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']:
+        # for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'AVGGQ', 'AVGGQ_R', 'DP_HIST', 'DP_HIST_R', 'GQ_HIST', 'GQ_HIST_R', 'CSQ']:
+        # for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']:
+        for x in ['AC', 'AN', 'AF', 'Hom', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']: # HX: CADD_PHRED is in CSQ
             if not x in ifile.header.info:
                 logging.error(f'Missing {x} INFO field meta-information.')
                 sys.exit(1)
@@ -277,7 +287,9 @@ def read_snv(filename):
                        'allele_freq': record.info['AF'][i],
                        'hom_count': record.info['Hom'][i],
                        'het_count': record.info['AC'][i] - 2 * record.info['Hom'][i],
-                       'cadd_phred': record.info['CADD_PHRED'][i] if 'CADD_PHRED' in record.info else None,
+                    #    'cadd_phred': record.info['CADD_PHRED'][i] if 'CADD_PHRED' in record.info else None,
+                       'cadd_phred': float(allele_effects[0]['CADD_PHRED']) if ('CADD_PHRED' in allele_effects[0] and allele_effects[0]['CADD_PHRED']!='' ) else None, # HX: CADD score must be identical for all transcripts, and we assume at least one transcsript
+                       # HX: to exclude if allele_effects[0]['CADD_PHRED'] == ''
                        'annotation': annotation_from_effects(allele_effects),
                        'avg_dp': record.info['AVGDP'],
                        'avg_dp_alt': record.info['AVGDP_R'][i + 1],

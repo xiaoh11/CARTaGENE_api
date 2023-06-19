@@ -99,6 +99,6 @@ class FSCoverageProvider(CoverageProvider):
         tabixfile = pysam.TabixFile(cov_path.as_posix())
 
         for row in tabixfile.fetch(chrom, max(1, start - 1), stop, parser=pysam.asTuple()):
-            result.append(rapidjson.loads(row[3]))
+            result.append(rapidjson.loads(row[3])) #HX 3->2
 
         return(result)
