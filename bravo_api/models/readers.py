@@ -5,6 +5,7 @@ import gzip
 import json
 import logging
 import sys
+import re
 
 
 def read_sv(filename):
@@ -232,6 +233,19 @@ def get_pub_freqs(allele_effects):
         # HX: edit end
     return [{'ds': key, **value} for key, value in pub_freqs.items()]
 
+#HX: mimic the above function to extract AF_per_population
+def get_pop_freqs(record, alter_allele_index):
+    pop_freqs = {}
+    for key in record.info.keys():
+        if key.endswith('_AF'):
+            pop = re.sub('_AF$', '', key)
+            af = record.info.get(key)[alter_allele_index] # record.info.get(key) is a list/tuple, so call the corresponding af by allele number
+            #check type(af[alter_allele_index]): float
+            #print(type(af) == float)
+            if af is not None:
+                pop_freqs[pop] = af
+    return pop_freqs
+
 
 def read_snv(filename):
     with pysam.VariantFile(filename) as ifile:
@@ -287,7 +301,7 @@ def read_snv(filename):
                        'allele_freq': record.info['AF'][i],
                        'hom_count': record.info['Hom'][i],
                        'het_count': record.info['AC'][i] - 2 * record.info['Hom'][i],
-                    #    'cadd_phred': record.info['CADD_PHRED'][i] if 'CADD_PHRED' in record.info else None,
+                       # 'cadd_phred': record.info['CADD_PHRED'][i] if 'CADD_PHRED' in record.info else None,
                        'cadd_phred': float(allele_effects[0]['CADD_PHRED']) if ('CADD_PHRED' in allele_effects[0] and allele_effects[0]['CADD_PHRED']!='' ) else None, # HX: CADD score must be identical for all transcripts, and we assume at least one transcsript
                        # HX: to exclude if allele_effects[0]['CADD_PHRED'] == ''
                        'annotation': annotation_from_effects(allele_effects),
@@ -304,6 +318,10 @@ def read_snv(filename):
                     pub_freqs = get_pub_freqs(allele_effects)
                     if pub_freqs:
                         variant['pub_freq'] = pub_freqs
+                    #HX
+                    pop_freqs = get_pop_freqs(record, i) # pass i to this function e.g. def get_pop_freqs(record, allele_num) to find alernate allele specific info, similar to 'allele_freq': record.info['AF'][i]
+                    if pop_freqs:
+                        variant['allele_pop_freq'] = pop_freqs
                 except:
                     logging.exception(f'Failed to process {chrom}-{record.pos}-{record.ref}-{alt_allele} variant.')
                     continue

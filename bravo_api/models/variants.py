@@ -181,6 +181,7 @@ def get_snv(variant_id, chrom, position, full):
        'cadd_phred': True,
        'allele_num': True, 'allele_count': True, 'allele_freq': True,
        'hom_count': True, 'het_count': True,
+       'allele_pop_freq': True, #HX
     }
     if full:
         projection.update({
@@ -303,7 +304,8 @@ def get_region_snv(chrom, start, stop, filter, sort, continue_from, limit):
        'cadd_phred': True,
        'allele_num': True, 'allele_count': True, 'allele_freq': True,
        'hom_count': True, 'het_count': True,
-       'annotation': True
+       'annotation': True,
+       'allele_pop_freq': True, #HX
     }
 
     pipeline = [
@@ -508,7 +510,7 @@ def get_gene_snv(name, filter, sort, continue_from, limit, introns):
        'ref': True, 'alt': True,
        'site_quality': True, 'filter': True,
        'cadd_phred': True,
-       'allele_num': True, 'allele_count': True, 'allele_freq': True,
+       'allele_num': True, 'allele_count': True, 'allele_freq': True,'allele_pop_freq': True, #HX
        'hom_count': True, 'het_count': True,
        #'annotation.genes': True
        'annotation.genes': {
