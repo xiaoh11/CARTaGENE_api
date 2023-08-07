@@ -55,25 +55,6 @@ allowed_snv_sort_keys = {
 }
 
 
-#HX
-@bp.route('/tempdata/<string:variant_id>', methods=['GET'])
-def get_data(variant_id):
-    url = f'https://pheweb.org/UKB-TOPMed/variant/{variant_id}'
-    response = requests.get(url)
-    return response.text
-
-@bp.route('/test', methods=['GET'])
-def test_route():
-    return "Test is working!"
-# def get_variant_data(variant_id):
-#     try:
-#         response = requests.get(f'https://pheweb.org/UKB-TOPMed/variant/{variant_id}')
-#         response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
-#         return jsonify(response.json())
-#     except requests.RequestException as error:
-#         return jsonify({'error': 'Error fetching data', 'details': str(error)}), 500
-
-
 @parser.error_handler
 def handle_http_request_parsing_error(error, request, schema, error_status_code, error_headers):
     for field, message in error.messages.items():
