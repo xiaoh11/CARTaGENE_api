@@ -10,6 +10,11 @@ from webargs import fields
 from marshmallow import validate
 from bravo_api.blueprints.legacy_ui import pretty_api, common
 import re
+import requests
+
+from bs4 import BeautifulSoup
+import math
+import json
 
 bp = Blueprint('variant_routes', __name__)
 
@@ -30,6 +35,125 @@ variant_argmap = {
                              error_messages=common.ERR_EMPTY_MSG)
 }
 
+
+#HX
+@bp.route('/tempdata/<string:variant_id>', methods=['GET'])
+def get_data(variant_id):
+    url = f'https://pheweb.org/UKB-TOPMed/variant/{variant_id}'
+    response = requests.get(url)
+    return response.text
+
+@bp.route('/tempdata_mod/UKB-TOPMed/<string:variant_id>', methods=['GET'])
+def get_data_mod_ukb(variant_id):
+    url = f'https://pheweb.org/UKB-TOPMed/variant/{variant_id}'
+    response = requests.get(url)
+    var_name = "window.variant"
+    raw_data = ""
+    soup = BeautifulSoup(response.text, 'html.parser')
+    scripts = soup.find_all('script', {'type': 'text/javascript'})
+    for script in scripts:
+        script_code = script.string
+        if (script_code) and (var_name in script_code):
+            match = re.search(f'{var_name} = (.*?\\}});', script_code)
+            if match:
+                raw_data = match.group(1)
+    if raw_data:
+        data_dict = json.loads(raw_data)
+        result = {
+            "data": [],
+            "lastPage": None,
+            "meta": {"build": ["GRCh38"]}
+        }
+        record_id = 1
+
+        for pheno in data_dict["phenos"]:
+            entry = {
+                "beta": pheno["beta"],
+                "chromosome": data_dict["chrom"],
+                "position": data_dict["pos"],
+                "id": record_id,
+                "ref_allele": data_dict["ref"],
+                "variant": data_dict["variant_name"],
+                "log_pvalue": -math.log10(pheno["pval"]),
+                "trait_group": pheno["category"],
+                "trait": pheno["phenocode"],
+                "trait_label": pheno["phenostring"],
+                "num_cases": pheno["num_cases"],
+            }
+            result["data"].append(entry)
+            record_id += 1
+        json_result = json.dumps(result)
+        return json_result
+    else:
+        return json.dumps({})
+
+@bp.route('/tempdata_mod/freeze5/<string:variant_id>', methods=['GET'])
+def get_data_mod_f5(variant_id):
+    url = f'http://r5.finngen.fi/variant/{variant_id}'
+    response = requests.get(url)
+    var_name = "window.results"
+    var_name2 = "window.variant"
+    soup = BeautifulSoup(response.text, 'html.parser')
+    scripts = soup.find_all('script', {'type': 'text/javascript'})
+    raw_data2 = ""
+    raw_data_var = ""
+    for script in scripts:
+        script_code = script.string
+        if (script_code) and (var_name in script_code):
+            match = re.search(f'{var_name} = (.*?\\]);', script_code)
+            if match:
+                raw_data2 = match.group(1)
+        if (script_code) and (var_name2 in script_code):
+            # print("yes")
+            match = re.search(f'{var_name2} = (.*?\\}});', script_code)
+            if match:
+                raw_data_var = match.group(1)
+    if raw_data2 and raw_data_var:
+        data_dict = json.loads(raw_data2)
+        data_var = json.loads(raw_data_var)
+        
+        # if not isinstance(data_dict, list):
+        #     return json.dumps({})
+        # if not isinstance(data_var, dict):
+        #     return json.dumps({})
+        
+        result = {
+            "data": [],
+            "lastPage": None,
+            "meta": {"build": ["GRCh38"]}
+        }
+        record_id = 1
+
+        for pheno in data_dict:
+            try:
+                pval_float = float(pheno["pval"])
+            except (ValueError, TypeError):
+                pval_float = None
+            
+            entry = {
+                "beta": pheno["beta"],
+                "chromosome": data_var["chr"],
+                "position": data_var["pos"],
+                "id": record_id,
+                "ref_allele": data_var["ref"],
+                "variant": data_var["varid"],
+                "log_pvalue": -math.log10(pheno["pval"]) if pval_float is not None else None,
+                "trait_group": pheno["category"],
+                "trait": pheno["phenocode"],
+                "trait_label": pheno["phenostring"]
+            }
+            result["data"].append(entry)
+            record_id += 1
+        json_result = json.dumps(result)
+        return json_result
+    else:
+        return json.dumps({})
+        
+
+@bp.route('/test', methods=['GET'])
+def test_route():
+    return "Test is working!"
+# HX
 
 @bp.route('/variant/api/snv/<string:variant_id>')
 @parser.use_kwargs(variant_argmap, location='view_args')
