@@ -44,6 +44,7 @@ The runtime data on disk needs to be present before running.
     ├── cache
     ├── coverage
     ├── crams
+    ├── clinvar
     └── reference
 ```
 
@@ -55,6 +56,7 @@ COVERAGE_DIR = os.path.join(BASE_DIR, 'coverage')
 SEQUENCES_DIR = os.path.join(BASE_DIR, 'crams')
 SEQUENCES_CACHE_DIR = os.path.join(BASE_DIR, 'cache')
 REFERENCE_SEQUENCE = os.path.join(BASE_DIR, 'reference', 'chr11_hs38DH.fa')
+CLINVAR_VCF = os.path.join(BASE_DIR, 'clinvar', 'clinvar.vcf.gz')
 ```
 
 ### MongoDB
