@@ -3,7 +3,7 @@ Two main responsibilities are:
     - Converting user facing args to underlying model calls.
     - Aggregate results to data structure expected by web serving layer.
 """
-from bravo_api.models import variants, qc_metrics, sequences
+from bravo_api.models import variants, qc_metrics, sequences, clinVar
 from flask import current_app
 
 FILTER_TYPE_MAPPING = {
@@ -137,6 +137,7 @@ def determine_coverage_bin(query_length):
         bin_name = 'bin_0.25'
     else:
         bin_name = 'full'
+    # bin_name = 'full'
 
     return(bin_name)
 
@@ -194,6 +195,13 @@ def get_gene_snv(ensembl_id, filters, sorts, continue_from, limit, introns):
 
     return({'data': snv['data'], 'total': snv['total'], 'limit': snv['limit'],
             'next': snv['last'], 'error': None})
+    
+#HX
+def get_gene_clinVar(ensembl_id,introns):
+    # print("get_gene_clinVar is called")
+    clinVar_list = clinVar.fetch_vcf_positions(ensembl_id)
+    
+    return clinVar_list
 
 
 def get_region_snv_histogram(chrom, start, stop, filters, windows):

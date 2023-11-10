@@ -10,6 +10,8 @@ COVERAGE_DIR = os.path.join(BASE_DIR, 'coverage')
 SEQUENCES_DIR = os.path.join(BASE_DIR, 'crams')
 SEQUENCES_CACHE_DIR = os.path.join(BASE_DIR, 'cache')
 REFERENCE_SEQUENCE = os.path.join(BASE_DIR, 'reference', 'hs38DH.fa')
+CLINVAR_DIR = os.path.join(BASE_DIR, 'clinvar')
+CLINVAR_VCF = os.path.join(BASE_DIR, 'clinvar', 'clinvar_20231007.vcf.gz')
 
 # Optional configuration
 LOGIN_DISABLED = True
