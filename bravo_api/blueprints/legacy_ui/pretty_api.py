@@ -203,6 +203,12 @@ def get_gene_clinVar(ensembl_id,introns):
     
     return clinVar_list
 
+def get_region_clinVar(chrom, start, stop,introns):
+    # print("get_gene_clinVar is called")
+    clinVar_list = clinVar.fetch_vcf_positions_by_region(chrom, start, stop)
+    
+    return clinVar_list
+
 
 def get_region_snv_histogram(chrom, start, stop, filters, windows):
     munged_filters = munge_ui_filters(filters)

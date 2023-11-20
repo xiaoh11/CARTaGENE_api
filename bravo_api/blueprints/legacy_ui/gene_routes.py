@@ -114,7 +114,6 @@ def gene_variants(ensembl_id, filters, sorters, introns, size, next):
 # @parser.use_kwargs(gene_snv_view_argmap, location='view_args')
 # @parser.use_kwargs(gene_snv_json_argmap, location='json')
 def gene_clinVar(ensembl_id):
-    # print("gene_clinVar is called:")
     result = pretty_api.get_gene_clinVar(ensembl_id,True)
     
     return make_response(jsonify(result), 200)

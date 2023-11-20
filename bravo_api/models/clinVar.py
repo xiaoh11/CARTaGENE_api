@@ -23,7 +23,7 @@ def fetch_vcf_positions(name):
     gene = variants.get_gene(name, True)
     if gene is None:
         return positions
-    print(gene['chrom'], gene['start'], gene['stop'])
+    # print(gene['chrom'], gene['start'], gene['stop'])
     chromosome = gene['chrom']
     start = gene['start']
     end = gene['stop']
@@ -50,7 +50,36 @@ def fetch_vcf_positions(name):
                 positions.append([base_info, clnsig]) 
             if clnsig:
                 for sig in clnsig:
-                    positions.append([variant_info, str(sig)])
+                    positions.append([variant_info, record.id, str(sig)])
+    
+    return positions
+
+def fetch_vcf_positions_by_region(chrom, start, stop):
+    print("fetch is called")
+    positions = []
+    vcf_file = current_app.config['CLINVAR_VCF']
+    
+    # gene = variants.get_gene(name, True)
+    # if gene is None:
+    #     return positions
+    # # print(gene['chrom'], gene['start'], gene['stop'])
+    # chromosome = chrom
+    # start = gene['start']
+    # end = gene['stop']
+    
+    with pysam.VariantFile(vcf_file) as vcf:
+        for record in vcf.fetch(chrom, start, stop):
+            base_info = f"{record.chrom}-{record.pos}-{record.ref}-"
+            clnsig = record.info.get('CLNSIG')
+            if record.alts:
+                for alt in record.alts:
+                    variant_info = base_info + str(alt)
+                    positions.append(variant_info)
+            else:
+                positions.append([base_info, clnsig]) 
+            if clnsig:
+                for sig in clnsig:
+                    positions.append([variant_info, record.id, str(sig)])
     
     return positions
 

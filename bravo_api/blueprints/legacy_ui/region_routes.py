@@ -149,3 +149,13 @@ def region_variants(chrom, start, stop, filters, sorters, size, next):
     result = pretty_api.get_region_snv(chrom, start, stop, filters, sorters, continue_from=next,
                                        limit=size)
     return make_response(jsonify(result), 200)
+
+
+# HX
+@bp.route('/variants/region/snv/clinvar/<string:chrom>-<int:start>-<int:stop>', methods=['GET'])
+# @parser.use_kwargs(gene_snv_view_argmap, location='view_args')
+# @parser.use_kwargs(gene_snv_json_argmap, location='json')
+def region_clinVar(chrom, start, stop):
+    result = pretty_api.get_region_clinVar(chrom, start, stop, True)
+    
+    return make_response(jsonify(result), 200)
