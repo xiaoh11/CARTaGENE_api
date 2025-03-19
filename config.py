@@ -6,6 +6,7 @@ MONGO_URI = 'mongodb://127.0.0.1:27017/test'
 BRAVO_API_PAGE_LIMIT = 10000
 
 BASE_DIR = os.path.join(os.sep, 'home', 'xiaoh11', "projects", "rrg-vmooser", "xiaoh11", 'bravo', 'data', 'runtime')
+# BASE_DIR = os.path.join(os.sep, 'home', 'xiaoh', 'bravo', 'data', 'runtime')
 COVERAGE_DIR = os.path.join(BASE_DIR, 'coverage')
 SEQUENCES_DIR = os.path.join(BASE_DIR, 'crams')
 SEQUENCES_CACHE_DIR = os.path.join(BASE_DIR, 'cache')

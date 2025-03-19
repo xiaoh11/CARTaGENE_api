@@ -251,7 +251,7 @@ def read_snv(filename):
     with pysam.VariantFile(filename) as ifile:
         # for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'AVGGQ', 'AVGGQ_R', 'DP_HIST', 'DP_HIST_R', 'GQ_HIST', 'GQ_HIST_R', 'CSQ']:
         # for x in ['AC', 'AN', 'AF', 'Hom', 'CADD_PHRED', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']:
-        for x in ['AC', 'AN', 'AF', 'Hom', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']: # HX: CADD_PHRED is in CSQ
+        for x in ['AC', 'AN', 'F_MISSING', 'AF', 'Hom', 'AVGDP', 'AVGDP_R', 'DP_HIST', 'DP_HIST_R', 'CSQ']: # HX: CADD_PHRED is in CSQ
             if not x in ifile.header.info:
                 logging.error(f'Missing {x} INFO field meta-information.')
                 sys.exit(1)
@@ -298,9 +298,11 @@ def read_snv(filename):
                        'filter': sorted(record.filter.keys()),
                        'allele_count': record.info['AC'][i],
                        'allele_num': record.info['AN'],
+                       'freq_missing': record.info['F_MISSING'],
                        'allele_freq': record.info['AF'][i],
                        'hom_count': record.info['Hom'][i],
-                       'het_count': record.info['AC'][i] - 2 * record.info['Hom'][i],
+                       # 'het_count': record.info['AC'][i] - 2 * record.info['Hom'][i],
+                       'het_count': record.info['Het'][i], # directly read from vcf if applicable
                        # 'cadd_phred': record.info['CADD_PHRED'][i] if 'CADD_PHRED' in record.info else None,
                        'cadd_phred': float(allele_effects[0]['CADD_PHRED']) if ('CADD_PHRED' in allele_effects[0] and allele_effects[0]['CADD_PHRED']!='' ) else None, # HX: CADD score must be identical for all transcripts, and we assume at least one transcsript
                        # HX: to exclude if allele_effects[0]['CADD_PHRED'] == ''

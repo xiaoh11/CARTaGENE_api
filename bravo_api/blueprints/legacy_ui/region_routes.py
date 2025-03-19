@@ -159,3 +159,11 @@ def region_clinVar(chrom, start, stop):
     result = pretty_api.get_region_clinVar(chrom, start, stop, True)
     
     return make_response(jsonify(result), 200)
+
+@bp.route('/variants/region/snv/clinVargraph/<string:chrom>-<int:start>-<int:stop>', methods=['GET'])
+# @parser.use_kwargs(gene_snv_view_argmap, location='view_args')
+# @parser.use_kwargs(gene_snv_json_argmap, location='json')
+def region_clinVargraph(chrom, start, stop):
+    result = pretty_api.get_region_clinVargraph(chrom, start, stop, True)
+    
+    return make_response(jsonify(result), 200)

@@ -3,6 +3,8 @@ __pycache__
 instance
 web_components/*/dist
 web_components/*/node_modules
+run_bravo_api.sh
+api.sh
 
 # data directory for local testing
 data/*

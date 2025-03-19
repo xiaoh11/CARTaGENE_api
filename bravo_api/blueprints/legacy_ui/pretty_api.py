@@ -21,6 +21,7 @@ ALLOWED_SNV_SORT_KEYS = [
    'qual',
    'variant_id',
    'allele_num',
+   'freq_missing',
    'allele_freq',
    'hom_count',
    'het_count',
@@ -208,6 +209,18 @@ def get_region_clinVar(chrom, start, stop,introns):
     clinVar_list = clinVar.fetch_vcf_positions_by_region(chrom, start, stop)
     
     return clinVar_list
+
+def get_gene_clinVargraph(ensembl_id,introns):
+    # clinVar_list = clinVar.fetch_vcf_positions(ensembl_id)
+    clinVar_list = clinVar.compare_db_with_clinVar(ensembl_id)
+    
+    return clinVar_list
+
+def get_region_clinVargraph(chrom, start, stop,introns):
+    # clinVar_list = clinVar.fetch_vcf_positions_by_region(chrom, start, stop)
+    clinVar_list = clinVar.compare_db_with_clinVar_region(chrom, start, stop)
+    
+    return clinVar_list 
 
 
 def get_region_snv_histogram(chrom, start, stop, filters, windows):

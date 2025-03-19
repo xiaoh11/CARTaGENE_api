@@ -117,3 +117,12 @@ def gene_clinVar(ensembl_id):
     result = pretty_api.get_gene_clinVar(ensembl_id,True)
     
     return make_response(jsonify(result), 200)
+
+@bp.route('/variants/gene/snv/clinVargraph/<string:ensembl_id>', methods=['GET'])
+# @parser.use_kwargs(gene_snv_view_argmap, location='view_args')
+# @parser.use_kwargs(gene_snv_json_argmap, location='json')
+def gene_clinVargraph(ensembl_id):
+    # result = pretty_api.get_gene_clinVar(ensembl_id,True)
+    result = pretty_api.get_gene_clinVargraph(ensembl_id,True)
+    
+    return make_response(jsonify(result), 200)

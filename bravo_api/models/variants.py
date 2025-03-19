@@ -7,6 +7,8 @@ from bson.regex import Regex
 import functools
 from intervaltree import Interval, IntervalTree
 from collections import Counter
+import math
+
 
 
 new_filter_field_api2mongo = {
@@ -158,7 +160,18 @@ def adjust_mongo_filter2(mongo_filter, mongo_sort, last, gene_name):
                 mongo_last_filter.append({key: {'$lt': last[key]}})
     mongo_filter.append({'$or': mongo_last_filter})
 
-
+# replace any NaN to None
+# TODO: check the data prep to see if it's possible to have NaN
+def replace_nan_with_none(data):
+    if isinstance(data, dict):
+        return {k: replace_nan_with_none(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [replace_nan_with_none(item) for item in data]
+    elif isinstance(data, float) and math.isnan(data):
+        return None
+    else:
+        return data
+    
 def get_snv(variant_id, chrom, position, full):
     if variant_id is not None:
         if variant_id.startswith('rs'):
@@ -182,6 +195,7 @@ def get_snv(variant_id, chrom, position, full):
        'allele_num': True, 'allele_count': True, 'allele_freq': True,
        'hom_count': True, 'het_count': True,
        'allele_pop_freq': True, #HX
+       'freq_missing': True
     }
     if full:
         projection.update({
@@ -205,6 +219,7 @@ def get_snv(variant_id, chrom, position, full):
 
     cursor = mongo.db.snv.aggregate(pipeline)
     for entry in cursor:
+        # entry = replace_nan_with_none(entry)
         if full:
             for annotation_gene in entry['annotation'].get('genes', []):
                 gene = get_gene(annotation_gene['name'], False)
@@ -306,6 +321,7 @@ def get_region_snv(chrom, start, stop, filter, sort, continue_from, limit):
        'hom_count': True, 'het_count': True,
        'annotation': True,
        'allele_pop_freq': True, #HX
+       'freq_missing': True
     }
 
     pipeline = [
@@ -510,6 +526,7 @@ def get_gene_snv(name, filter, sort, continue_from, limit, introns):
        'ref': True, 'alt': True,
        'site_quality': True, 'filter': True,
        'cadd_phred': True,
+       'freq_missing': True,
        'allele_num': True, 'allele_count': True, 'allele_freq': True,'allele_pop_freq': True, #HX
        'hom_count': True, 'het_count': True,
        #'annotation.genes': True
